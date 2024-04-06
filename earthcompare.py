@@ -11,13 +11,17 @@ data ={"systemName" : system}
 res = ses.get('https://www.edsm.net/api-system-v1/bodies', params=data)
 resj = res.json()
 
+if len(resj) == 0:
+    print("Received empty response. System", '"'+system+'"', "may be invalid.")
+    sys.exit(0)
+
 tmp = 0
 for i in resj["bodies"]:
     if i["subType"] == "Earth-like world":
         print("\033[92m", end="")
         print(i["name"] + " (Earth-like world)" + "\033[0m")
     else:
-        print(i["name"])
+        print(i["name"] + " (" + i["subType"] + ")")
 
 print("") #Need that new line
 
@@ -28,14 +32,11 @@ tmp = 0
 for i in resj["bodies"]:
     if i["name"] == body:
         index = tmp
-    if i["name"].find(body) != -1:
+    if i["name"].find(body) != -1: #Check if we're specifing object in system
         index = tmp
     tmp += 1
 
-if index == -1: #Assume we're meaning to input an object
-    pass
 
-#print(resj["bodies"][index])
 
 mass = resj["bodies"][index]["earthMasses"]
 radius = resj["bodies"][index]["radius"]
@@ -72,4 +73,9 @@ compo1Dif = 100 - (abs(70.0 - compo1)   / ((70.0 + compo1)   / 2)) * difRatio * 
 compo2Dif = 100 - (abs(30.0 - compo2)   / ((30.0 + compo2)   / 2)) * difRatio * 100
 rotperDif = 100 - (abs(0.997269752199074 - rotper)      / ((0.997269752199074 + rotper)      / 2)) * difRatio * 100
 
-print("It is " + str(round(((massDif+radiusDif+gravityDif+tempDif+presDif+atmos1Dif+atmos2Dif+atmos3Dif+compo1Dif+compo2Dif+rotperDif)/11), 2)) + "% like Earth")
+print("It is " + str(round(((massDif+radiusDif+gravityDif+tempDif+presDif+atmos1Dif+atmos2Dif+atmos3Dif+compo1Dif+compo2Dif+rotperDif)/11), 2)) + "% like Earth",end="")
+
+if body == "Earth":
+    print(" (Shocker!)")
+else:
+    print("")
